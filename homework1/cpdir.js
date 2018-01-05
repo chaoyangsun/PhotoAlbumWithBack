@@ -1,9 +1,9 @@
 let fs = require("fs");
 let path = require("path");
 // console.log(__dirname);
-let oldDirPath = path.join(__dirname, "oldTest");
+let oldPath = path.join(__dirname, "oldTest");
 // let newDirPath = "newTest";
-let newDirPath = path.join(__dirname, "newTest");
+let newPath = path.join(__dirname, "newTest");
 // console.log(oldDirPath);
 
 function cpdir(oldDirPath, newDirPath) {
@@ -11,41 +11,37 @@ function cpdir(oldDirPath, newDirPath) {
     if (err) {
       errFun(err);
     }
-    // else {
-    //   newDirPath = path.join(oldDirPath, item);
-    // }
   });
   fs.readdir(oldDirPath, (err, files) => {
     if (err) {
       errFun(err);
-    }else {
+    } else {
+      console.log(files);
       files.forEach((item) => {
-        judge(item);
+        judge(item, oldDirPath, newDirPath);
       });
     }
   });
 
 }
- cpdir(oldDirPath, newDirPath);
+cpdir(oldPath, newPath);
 
-function judge(item) {
+function judge(item, oldDirPath, newDirPath) {
   let oldDirPath2 = path.join(oldDirPath, item);
   fs.stat(oldDirPath2, (err, stats) => {
     if (err) {
       errFun(err);
-    }else {
-      if (stats.isFile()) {//是文件直接copy
-          console.log("item ======= " + oldDirPath2);
-          let newDirPath2 = path.join(newDirPath, item);
+    } else {
+      if (stats.isFile()) { //是文件直接copy
+        let newDirPath2 = path.join(newDirPath, item);
         fs.copyFile(oldDirPath2, newDirPath2, (err) => {
           if (err) {
             errFun();
           }
         });
-      }else {//是文件夹 继续 递归
+      } else { //是文件夹 继续 递归
         let newDirPath3 = path.join(newDirPath, item);
-        console.log("oldDirPath2-----" + newDirPath3);
-        cpdir(oldDirPath2,newDirPath3);
+        cpdir(oldDirPath2, newDirPath3);
       }
     }
   });
