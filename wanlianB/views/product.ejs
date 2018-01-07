@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>孙朝阳</title>
+  <link rel="stylesheet" href="/stylesheets/product2.css">
+</head>
+
+<body>
+  <div class="container">
+    <header>
+      <hgroup>
+        <h2>这是主标题</h2>
+        <h3>这是副标题</h3>
+      </hgroup>
+      <p>我爱你塞北的雪，塞北雪花大如席。塞北的雪你为什么不说话，塞北的雪你为什么那么大。我爱你塞北的雪，塞北雪花大如席。塞北的雪你为什么不说话，塞北的雪你为什么那么大。我爱你塞北的雪，塞北雪花大如席。塞北的雪你为什么不说话，塞北的雪你为什么那么大。</p>
+    </header>
+
+    <nav>
+      <h3>菜单 》</h3>
+      <ul>
+        <li> <a href="#">主页</a></li>
+        <li> <a href="#">产品</a></li>
+        <li>
+          <a href="#">招聘</a>
+          <ul>
+            <li>Android</li>
+            <li>Web</li>
+            <li>Python</li>
+            <li>other >
+              <ul>
+                <li>IOS</li>
+                <li>PHP</li>
+                <li>C++</li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+        <li> <a href="#">关于</a></li>
+      </ul>
+    </nav>
+
+    <section>
+      <h1>产品展示</h1>
+
+      <!-- <div class="product">
+        <h5>小米手机</h5>
+        <img src="/images/product.png" alt="">
+        <p>小米是世界上最好的手机，虽然我现在用的是魅族，虽然我上次买的红米是那么的烂，虽然下一代我准备买华为或者三星，但是小米依然是世界上最好的手机。</p>
+      </div> -->
+
+        <%- include("product_part", {})-%>
+    </section>
+
+    <footer>
+
+    </footer>
+  </div>
+  <div class="ad">
+    <p> X </p>
+    <span>这是小米精彩炫酷的广告</span>
+  </div>
+
+  <script type="text/javascript">
+    //添加图片
+    // let product = document.querySelector(".product").outerHTML;
+    // console.log(product);
+
+    // for (var i = 0; i < 4; i++) {
+    //   product += product;
+    // }
+    // document.querySelector("section").insertAdjacentHTML("beforeEnd", product);
+
+    //隐藏广告
+    let divDom = document.querySelector("div.ad");
+    document.querySelector("div.ad > p").addEventListener("click", function() {
+      divDom.classList.toggle("trans");
+    });
+
+    //点击菜单 显示下拉列表
+    let ulDom = document.querySelector("nav > ul");
+    document.querySelector("nav > h3").addEventListener("click", function(e) {
+      // console.log(e.target);
+      e.stopPropagation();
+      ulDom.classList.toggle("adapPhone");
+    });
+    //点击空白区域 列表消失
+    document.addEventListener("click", function(e) {
+      // e.stopPropagation();
+      let udom = document.querySelector(".adapPhone");
+      if (udom) {
+        udom.classList.toggle("adapPhone");
+      }
+    });
+  </script>
+</body>
+
+</html>
