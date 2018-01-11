@@ -3,23 +3,31 @@ var multer = require("multer");
 var uplaod = multer({
   dest:"upload"
 });
-var middle = upload.array("mfiles", 8);
+var middle = upload.array("mfiles");
 var arr = [];
 
-router.get("/", function(req, res) {
-res.render("picture",{list:arr});
+//直接进入 加载图片
+router.get("/", function (req, res) {
+  res.send(arr);
 });
 
-// <img src="../img/xxxx" >
-router.get("/img/:imgname",function (req,res) {
-   // 图片文件数据的［读取流］
-   const rs = fs.createReadStream("upload/"+req.params.imgname);
-   rs.pipe(res);
+//将图片 返回
+router.get("/img/:imgname", function(req, res) {
+  //图文数据的 读取流
+  let fr = fs.createReadStream("upload/" +   req.params.imgname);
+  //用管道 讲读取流 连接到 响应流
+  fr.pipe(res);
 });
 
-router.post("/up",middle,function (req,res) {
-   arr.send(req.files);
-});
+router.post("/up", middle, function(req, res) {
+  // console.log(req.files);
+  let arr2 = [];
+  let arr3 = new Array();
+  arr.push(req.files);
+  arr2.push(req.files);
+  arr3.push(req.files);
 
+  res.send(arr3);
+});
 
 module.exports = router;

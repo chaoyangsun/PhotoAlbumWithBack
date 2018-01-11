@@ -378,15 +378,67 @@ function chooseNewPage() {
   }
   topage();
 }
+// *************************************************************************************************
 
 
-function xxx(formData) {
-  let xhr = new XMLHttpRequest();
-  xhr.open("POST", "/picture/up");
-  xhr.onreadystatechange = function(e) {
-    if (xhr.status == 200 && xhr.readyState == 4) {
+  function ff() {
+    let xhr = new XMLHttpRequest();
+    xhr.open("GET", "/upphoto/")
+    xhr.responseType = "json";
+    xhr.onreadystatechange = function() {
+      if (xhr.status == 200 && xhr.readyState == 4 && xhr.response) {
+        xhr.response.forEach(files => {
+          setUrl(files);
+        });
+      }
+    }
+
+    xhr.send();
+  };
+ff();
+    let dom = document.querySelector("input");
+    dom.addEventListener("change", function(e) {
+      let formData = new FormData();
+      let files = e.target.files;
+      for (var file of files) {
+        formData.append("a_up", file);
+      }
+      upload(formData);
+    });
+
+    function upload(formdata) {
+      let xhr = new XMLHttpRequest();
+      xhr.open("POST", "/upphoto/uparr/")
+      xhr.responseType = "json";
+      xhr.onreadystatechange = function() {
+        if (xhr.status == 200 && xhr.readyState == 4) {
+          console.log(xhr.response);
+          if (xhr.response) {
+            console.log("11111");
+          }
+          xhr.response.forEach(files => {
+            setUrl(files);
+          });
+        }
+      }
+
+      xhr.send(formdata);
+    }
+
+    function setUrl(files) {
+      if (files) {
+        files.forEach(item => {
+          let url = "/upphoto/img/" + item.filename;
+          addImage(url);
+        });
+      }
 
     }
-  }
-  xhr.send(formData);
-}
+
+    function addImage(url) {
+      let img = new Image();
+      img.src = url;
+      img.width = "150";
+      img.height = "150";
+      document.querySelector(".box").appendChild(img);
+    }
