@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title></title>
+  <style media="screen">
+    .show {
+      display: inline-block;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .header,nav{
+      background-color: #eee;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+    ul{
+      list-style: none;
+        background-color: #eee;
+        padding: 0;
+        padding-left: 10px;
+        margin: 0;
+    }
+    li{
+      line-height: 32px;
+      padding: 5px 0;
+    }
+    h3{
+      margin: 0;
+    }
+  </style>
+</head>
+
+<body>
+
+  <% if(user){ %>
+    <nav>
+        <h3 style="display:inline-block"><%= user.loginname %> 已登陆 </h3>
+        <a href="msg/logout">退出</a>
+      </nav>
+      <form class="show" action="msg/leave" method="post">
+      <textarea name="leavemsg" rows="8" cols="80"></textarea>
+      <input type="submit" name="buttonmsg" value="留言">
+      </form>
+    <% }else{ %>
+      <div class="header">
+        <form class="show" action="msg/login" method="post">
+          <input type="text" name="loginname" value="" placeholder="登录名">
+          <input type="text" name="password" value="" placeholder="密码">
+          <%= firstnum %> + <%= secondnum%>  =  <input type="text" name="inum" style="width:60px;" placeholder="验证码">
+          <input type="submit" name="" value="登录">
+          <button type="button" name="button" class="buttonreg">尚未注册，去注册?</button>
+        </form>
+        <form class="hidden" action="msg/reg" method="post">
+          <input type="text" name="loginname" value="" placeholder="登录名">
+          <input type="text" name="password" value="" placeholder="密码">
+          <input type="text" name="confirm" value="" placeholder="密码">
+          <img src="/msg/imgnum2"><input type="text" name="inum2" style="width:60px;" placeholder="验证码">
+          <input type="submit" name="" value="注册">
+          <button type="button" name="button" class="buttonlogin">去登录</button>
+        </form>
+        <%if(msg){%>
+        <span class="msg" style="color:red;padding-left:10px"><%= msg%></span>
+        <%}%>
+      </div>
+      <% }%>
+
+      <%if(list){%>
+        <%list.forEach(item =>{%>
+          <ul>
+            <li><%= item%></li><hr>
+          </ul>
+        <%})%>
+      <%}%>
+        <script type="text/javascript">
+          let divdom = document.querySelector("div.header")
+          let btn = document.querySelector(".buttonreg")
+          let btn2 = document.querySelector(".buttonlogin")
+          let buttonmsg = document.querySelector("input[name=buttonmsg]")
+          let spandom = document.querySelector("span");
+          if (divdom) {
+            var formlogin = divdom.querySelector("form:nth-child(1)");
+            var formreg = divdom.querySelector("form:nth-child(2)");
+            <%if(state){%>
+              toggle("hidden", "show");
+            <%}else {%>
+              toggle("show", "hidden");
+            <%}%>
+          }
+          if (btn) {
+            btn.addEventListener("click", function () {
+                toggle("hidden", "show");
+                if (spandom) {
+                  spandom.innerText = "";
+                }
+            });
+          }
+          if (btn2) {
+            btn2.addEventListener("click", function () {
+              toggle("show", "hidden");
+              if (spandom) {
+                spandom.innerText = "";
+              }
+            });
+          }
+          // if (buttonmsg) {
+          //   buttonmsg.addEventListener("click", function () {
+          //     toggle("show", "hidden");
+          //     if (spandom) {
+          //       spandom.innerText = "";
+          //     }
+          //   });
+          // }
+          function toggle(login, reg) {
+            formlogin.className = login;
+            formreg.className = reg;
+          }
+        </script>
+</body>
+
+</html>

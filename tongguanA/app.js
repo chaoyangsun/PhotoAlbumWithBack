@@ -24,7 +24,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', index);
 app.use('/users', users);
-app.use('/picture', require("./routes/index"));
+app.use('/upfile', require("./routes/picture"));
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

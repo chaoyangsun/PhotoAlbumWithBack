@@ -1,6 +1,6 @@
 var router = require("express").Router();
 var multer = require("multer");
-var uplaod = multer({
+var upload = multer({
   dest:"upload"
 });
 var middle = upload.array("mfiles");
@@ -8,6 +8,7 @@ var arr = [];
 
 //直接进入 加载图片
 router.get("/", function (req, res) {
+  console.log("getgetget");
   res.send(arr);
 });
 
@@ -19,7 +20,7 @@ router.get("/img/:imgname", function(req, res) {
   fr.pipe(res);
 });
 
-router.post("/up", middle, function(req, res) {
+router.post("/uparr", middle, function(req, res) {
   // console.log(req.files);
   let arr2 = [];
   let arr3 = new Array();
