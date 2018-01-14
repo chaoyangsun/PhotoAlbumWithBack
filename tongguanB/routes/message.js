@@ -67,6 +67,9 @@ router.post("/leave", function(req, res) {
   let {leavemsg} = req.body;
   if (req.session.user && req.session.user.loginname && leavemsg) {
     req.session.leavemsg = req.session.user.loginname + ": " + leavemsg;
+    fs.appendFile("leavemsg",req.session.leavemsg + " -&- ", function (err) {
+      console.log(err);
+    });
     arr.push(req.session.leavemsg);
   }
   res.redirect("back");
