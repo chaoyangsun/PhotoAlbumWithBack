@@ -1,5 +1,6 @@
 var router = require("express").Router();
 var multer = require("multer");
+var fs = require("fs");
 var upload = multer({
   dest:"upload"
 });
@@ -23,12 +24,24 @@ router.get("/img/:imgname", function(req, res) {
 router.post("/uparr", middle, function(req, res) {
   // console.log(req.files);
   let arr2 = [];
-  let arr3 = new Array();
   arr.push(req.files);
   arr2.push(req.files);
-  arr3.push(req.files);
+  res.send(arr2);
+});
 
-  res.send(arr3);
+router.post("/createphotoalbum", function(req, res) {
+  let {name, age} = req.body;
+  let errors = "";
+  if (!(name && name.length > 2)){
+    errors = errors || {};
+    errors.name = "name length must > 2"
+  }
+  if (!/^\d{1,2}$/.test(age)) {
+    errors = errors || {};
+    errors.age = "age must be s> 0 and < 99";
+  }
+
+  res.send(errors);
 });
 
 module.exports = router;

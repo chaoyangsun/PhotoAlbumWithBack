@@ -35,16 +35,16 @@ currentContent = defaultMain;
 // }
 //
 //
-// let adoms = document.querySelectorAll("nav > a");
-// let content = document.querySelector(".content");
-//
-// let navPhoto = document.querySelector(".photo_album");
-// navPhoto.style.backgroundColor = "#ddd";
-// navPhoto.style.color = "#333";
-// let strBtn = `
-// <li><a href="#"></a></li>
-// `;
-//
+let adoms = document.querySelectorAll("nav > a");
+let content = document.querySelector(".content");
+
+let navPhoto = document.querySelector(".photo_album");
+navPhoto.style.backgroundColor = "#ddd";
+navPhoto.style.color = "#333";
+let strBtn = `
+<li><a href="#"></a></li>
+`;
+
 let str = `
 <div class="img">
   <img src="../images/product.png" alt="" class="photo">
@@ -72,35 +72,35 @@ let str = `
 // }
 // init();
 //
-// //导航栏点击事件
-// adoms.forEach(item => {
-//   item.addEventListener("click", function() {
-//     clickNav(item);
-//   });
-// });
-//
-// let preDom = navPhoto;
-//
-// function clickNav(item) {
-//   if (preDom) {
-//     preDom.style.backgroundColor = "rgb(250,250,250)";
-//     preDom.style.color = "#3366FF";
-//   }
-//   preDom = item;
-//   item.style.backgroundColor = "#ddd";
-//   item.style.color = "#333";
-//
-//   switch (item.className) {
-//     case "photo_album":
-//       content.style.display = "block"; //显示相册
-//       currentPage = 1;
-//       break;
-//     default:
-//       content.style.display = "none"; //点击其他 隐藏相册
-//       currentPage = 2;
-//   }
-// }
-//
+//导航栏点击事件
+adoms.forEach(item => {
+  item.addEventListener("click", function() {
+    clickNav(item);
+  });
+});
+
+let preDom = navPhoto;
+
+function clickNav(item) {
+  if (preDom) {
+    preDom.style.backgroundColor = "rgb(250,250,250)";
+    preDom.style.color = "#3366FF";
+  }
+  preDom = item;
+  item.style.backgroundColor = "#ddd";
+  item.style.color = "#333";
+
+  switch (item.className) {
+    case "photo_album":
+      content.style.display = "block"; //显示相册
+      currentPage = 1;
+      break;
+    default:
+      content.style.display = "none"; //点击其他 隐藏相册
+      currentPage = 2;
+  }
+}
+
 // //创建相册
 // let createPhoto = document.querySelector(".a-create");
 // let defaultItem = document.querySelector(".left > .defaultAll").outerHTML;
@@ -124,7 +124,7 @@ let str = `
 //     addDelListener(divDom);
 //   }
 // });
-//
+
 // //相册点击 删除相册
 // function addDelListener(item) {
 //   //删
@@ -380,6 +380,63 @@ let str = `
 // }
 // *************************************************************************************************
 
+//创建相册
+let createPhoto = document.querySelector(".a-create");
+let defaultItem = document.querySelector(".left > .defaultAll").outerHTML;
+// let index = 0;
+
+createPhoto.addEventListener("click", function() {
+  var result = window.prompt("请输入相册名字", "");
+  if (result) {
+    let index = new Date().getTime();
+    document.querySelector(".left").insertAdjacentHTML("beforeEnd", defaultItem);
+    //最新创建的相册边栏
+    let divDom = document.querySelector(".left > div:last-of-type");
+    divDom.setAttribute("class", "main" + (index));
+    var defineStr = divDom.className;
+    eval(defineStr + "=new Array()");
+    totalArr.push(eval(defineStr));
+    // eval("var " + divDom.className + "=new Array()");
+    // console.log(main1);
+    divDom.querySelector("span").innerHTML = result;
+    divDom.querySelector("img:first-child").setAttribute("class", "def");
+    divDom.querySelector("img:last-of-type").setAttribute("class", "del");
+    addDelListener(divDom);
+
+    fetch("/upfile/createphotoalbum", {
+      method: "POST",
+      body: JSON.stringify({result, index}),
+      headers:{
+        "Content-Type":"application/json"
+      }
+    }).then(res =>
+          res.text()
+      )
+    .then(res=> {
+      if (res) {
+        document.querySelector(".left").insertAdjacentHTML("beforeEnd", defaultItem);
+        res = JSON.parse(res);
+        //最新创建的相册边栏
+        let divDom = document.querySelector(".left > div:last-of-type");
+        divDom.setAttribute("class", "main" + (++index));
+        var defineStr = divDom.className;
+        eval(defineStr + "=new Array()");
+        totalArr.push(eval(defineStr));
+        // eval("var " + divDom.className + "=new Array()");
+        // console.log(main1);
+        divDom.querySelector("span").innerHTML = result;
+        divDom.querySelector("img:first-child").setAttribute("class", "def");
+        divDom.querySelector("img:last-of-type").setAttribute("class", "del");
+
+      }else {
+        document.querySelector(".d1").innerText = "";
+        document.querySelector(".d2").innerText = "";
+          document.querySelector(".d3").innerText = "成功了";
+      }
+    })
+  }
+});
+
 
   function ff() {
     let xhr = new XMLHttpRequest();
@@ -413,9 +470,6 @@ ff();
       xhr.onreadystatechange = function() {
         if (xhr.status == 200 && xhr.readyState == 4) {
           console.log(xhr.response);
-          if (xhr.response) {
-            console.log("11111");
-          }
           xhr.response.forEach(files => {
             setUrl(files);
           });
@@ -436,19 +490,13 @@ ff();
     }
 
     function addImage(url) {
-      let img = new Image();
-      img.src = url;
-      img.width = "150";
-      img.height = "150";
-      document.querySelector(".box").appendChild(img);
-console.log("ulr======"+url);
-      // document.querySelector(".main > header+div ").insertAdjacentHTML("beforeEnd", str);
-      //     let divdom = document.querySelector(".main > header+div > div:last-of-type");
-      //     let newImg = divdom.querySelector("img:first-child");
-      //     // newImg.setAttribute("class", `${++imgIndex}`);
-      //     newImg.src = url;
-      //     newImg.width = "150";
-      //     newImg.height = "150";
+      document.querySelector(".main > header+div ").insertAdjacentHTML("beforeEnd", str);
+          let divdom = document.querySelector(".main > header+div > div:last-of-type");
+          let newImg = divdom.querySelector("img:first-child");
+          // newImg.setAttribute("class", `${++imgIndex}`);
+          newImg.src = url;
+          newImg.width = "150";
+          newImg.height = "150";
 
       // currentContent.appendChild(img);
     }
