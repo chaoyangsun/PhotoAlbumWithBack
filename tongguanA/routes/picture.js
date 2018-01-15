@@ -4,13 +4,24 @@ var fs = require("fs");
 var upload = multer({
   dest:"upload"
 });
+
 var middle = upload.array("mfiles");
 var arr = [];
-
+var bigarr = [];
+let defaultAll = [];
+//大对象  存储所有的相册、照片
+// var bigobj = {};
+var bigobj = {defaultAll:{name:'全部',cName:"defaultAll",arrPhoto:defaultAll}};
 //直接进入 加载图片
 router.get("/", function (req, res) {
-  console.log("getgetget");
-  res.send(arr);
+  // if (Object.keys(bigobj).length == 0) {
+  //     res.send("");
+  // }else {
+  //     res.send(bigobj);
+  // }
+  console.log(bigobj);
+  res.send(bigobj);
+  // res.send(arr);
 });
 
 //将图片 返回
@@ -30,18 +41,28 @@ router.post("/uparr", middle, function(req, res) {
 });
 
 router.post("/createphotoalbum", function(req, res) {
-  let {name, age} = req.body;
-  let errors = "";
-  if (!(name && name.length > 2)){
-    errors = errors || {};
-    errors.name = "name length must > 2"
-  }
-  if (!/^\d{1,2}$/.test(age)) {
-    errors = errors || {};
-    errors.age = "age must be s> 0 and < 99";
-  }
+  let arrPhoto = [];
+  let {name, cName} = req.body;
+  bigobj[cName] = {name,cName,arrPhoto}
+  // console.log(bigobj[cName]);
+  // console.log(bigobj);
+  res.send(bigobj[cName]);
+});
 
-  res.send(errors);
+router.get("/clickphotoalbum", function(req, res) {
+  console.log(req.query.className);
+  // let arrPhoto = [];
+  // let {cName} = req.body;
+  let cName = req.query.className;
+  res.send(bigobj[cName]);
+});
+
+router.get("/delphotoalbum", function(req, res) {
+  console.log(bigobj);
+  let cName = req.query.className;
+  delete bigobj[cName];
+  console.log(bigobj);
+  res.send();
 });
 
 module.exports = router;

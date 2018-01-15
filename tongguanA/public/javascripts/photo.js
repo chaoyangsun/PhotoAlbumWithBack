@@ -384,28 +384,13 @@ function clickNav(item) {
 let createPhoto = document.querySelector(".a-create");
 let defaultItem = document.querySelector(".left > .defaultAll").outerHTML;
 // let index = 0;
-
 createPhoto.addEventListener("click", function() {
-  var result = window.prompt("请输入相册名字", "");
-  if (result) {
-    let index = new Date().getTime();
-    document.querySelector(".left").insertAdjacentHTML("beforeEnd", defaultItem);
-    //最新创建的相册边栏
-    let divDom = document.querySelector(".left > div:last-of-type");
-    divDom.setAttribute("class", "main" + (index));
-    var defineStr = divDom.className;
-    eval(defineStr + "=new Array()");
-    totalArr.push(eval(defineStr));
-    // eval("var " + divDom.className + "=new Array()");
-    // console.log(main1);
-    divDom.querySelector("span").innerHTML = result;
-    divDom.querySelector("img:first-child").setAttribute("class", "def");
-    divDom.querySelector("img:last-of-type").setAttribute("class", "del");
-    addDelListener(divDom);
-
+  var name = window.prompt("请输入相册名字", "");
+  if (name) {
+    let cName = "main"+ new Date().getTime();//作为新创建的相册的className
     fetch("/upfile/createphotoalbum", {
       method: "POST",
-      body: JSON.stringify({result, index}),
+      body: JSON.stringify({name, cName}),
       headers:{
         "Content-Type":"application/json"
       }
@@ -414,45 +399,75 @@ createPhoto.addEventListener("click", function() {
       )
     .then(res=> {
       if (res) {
-        document.querySelector(".left").insertAdjacentHTML("beforeEnd", defaultItem);
         res = JSON.parse(res);
-        //最新创建的相册边栏
-        let divDom = document.querySelector(".left > div:last-of-type");
-        divDom.setAttribute("class", "main" + (++index));
-        var defineStr = divDom.className;
-        eval(defineStr + "=new Array()");
-        totalArr.push(eval(defineStr));
-        // eval("var " + divDom.className + "=new Array()");
-        // console.log(main1);
-        divDom.querySelector("span").innerHTML = result;
-        divDom.querySelector("img:first-child").setAttribute("class", "def");
-        divDom.querySelector("img:last-of-type").setAttribute("class", "del");
-
-      }else {
-        document.querySelector(".d1").innerText = "";
-        document.querySelector(".d2").innerText = "";
-          document.querySelector(".d3").innerText = "成功了";
+        // document.querySelector(".left").insertAdjacentHTML("beforeEnd", defaultItem);
+        // //最新创建的相册边栏
+        // let divDom = document.querySelector(".left > div:last-of-type");
+        // divDom.setAttribute("class", res.cName);
+        // // var defineStr = divDom.className;
+        // divDom.querySelector("span").innerHTML = res.name;
+        // divDom.querySelector("img:first-child").setAttribute("class", "def");
+        // divDom.querySelector("img:last-of-type").setAttribute("class", "del");
+        // addPhotoAlumClickListener(divDom);
+        // delPhotoAlumListener(divDom);
+        createPhotoAlbum(res);
+        document.querySelector(".main > div:last-of-type").setAttribute("class", res.cName);
+        currentContent = document.querySelector(`.main > div.${res.cName}`);
       }
     })
   }
 });
 
+ //默认相册的点击
+ defaultLeft.addEventListener("click", function() {
+   // if (currentSelectingLeftDom != defaultLeft) {
+   //   currentPage = 0;
+   // }
+   defaultMain.setAttribute("class", "defaultAll");
+   currentContent = defaultMain;
+   currentSelectingLeftDom = defaultLeft;
+   document.querySelector(".photo_title").innerText = defaultLeft.innerText;
+   setBackground(currentSelectingLeftDom);
+   showPhoto();
+ });
 
-  function ff() {
-    let xhr = new XMLHttpRequest();
-    xhr.open("GET", "/upfile/")
-    xhr.responseType = "json";
-    xhr.onreadystatechange = function() {
-      if (xhr.status == 200 && xhr.readyState == 4 && xhr.response) {
-        xhr.response.forEach(files => {
-          setUrl(files);
-        });
-      }
-    }
 
-    xhr.send();
-  };
-ff();
+//页面刷新
+    function refresh() {
+        let xhr = new XMLHttpRequest();
+        xhr.open("GET", "/upfile/")
+        xhr.responseType = "json";
+        xhr.onreadystatechange = function() {
+          if (xhr.status == 200 && xhr.readyState == 4 && Object.keys(xhr.response).length !== 0) {
+            // console.log(Object.keys(xhr.response).length);
+            let total = xhr.response;
+            let index = currentSelectingLeftDom.className;
+            setUrl(total[index].arrPhoto);
+            Object.keys(xhr.response).forEach(obj =>{
+              if (obj != "defaultAll") {
+                createPhotoAlbum(total[obj]);
+              }
+            });
+          }
+        }
+        xhr.send();
+      };
+     refresh();
+
+     //刷新数据时 创建页面左边栏相册目录 obj对应的相册对象
+     function createPhotoAlbum(obj) {
+       document.querySelector(".left").insertAdjacentHTML("beforeEnd", defaultItem);
+       //最新创建的相册边栏
+       let divDom = document.querySelector(".left > div:last-of-type");
+       divDom.setAttribute("class", obj.cName);
+       // var defineStr = divDom.className;
+       divDom.querySelector("span").innerHTML = obj.name;
+       divDom.querySelector("img:first-child").setAttribute("class", "def");
+       divDom.querySelector("img:last-of-type").setAttribute("class", "del");
+       addPhotoAlumClickListener(divDom);
+       delPhotoAlumListener(divDom);
+     }
+
     let dom = document.querySelector("#file");
     dom.addEventListener("change", function(e) {
       let formData = new FormData();
@@ -469,13 +484,12 @@ ff();
       xhr.responseType = "json";
       xhr.onreadystatechange = function() {
         if (xhr.status == 200 && xhr.readyState == 4) {
-          console.log(xhr.response);
+          // console.log(xhr.response);
           xhr.response.forEach(files => {
             setUrl(files);
           });
         }
       }
-
       xhr.send(formdata);
     }
 
@@ -497,6 +511,121 @@ ff();
           newImg.src = url;
           newImg.width = "150";
           newImg.height = "150";
-
-      // currentContent.appendChild(img);
     }
+
+
+  //相册点击
+    function addPhotoAlumClickListener(dom) {
+      dom.addEventListener("click", function() {
+        // if (currentSelectingLeftDom != dom) {
+        //   currentPage = 0;
+        // }
+        let cName = dom.className;
+        fetch("/upfile/clickphotoalbum?className=" + cName, {
+          method: "GET",
+          headers:{
+            "Content-Type":"application/json"
+          }
+        })
+        .then(res =>
+              res.json()
+          )
+        .then(res=> {
+          if (res) {
+            // document.querySelector(".left").insertAdjacentHTML("beforeEnd", defaultItem);
+            //为相册对应的内容div设置class
+            let cName = dom.className;
+            document.querySelector(".main > div:last-of-type").setAttribute("class", cName);
+            let current = document.querySelector(`.main > div.${cName}`);
+            currentContent = current;
+            document.querySelector(".photo_title").innerText = dom.innerText;
+            //当前点击的左边栏相册
+            currentSelectingLeftDom = dom;
+            setBackground(currentSelectingLeftDom);
+            // showPhoto();
+          }
+        })
+      });
+    }
+
+  //相册删除
+    function delPhotoAlumListener(dom) {
+      let cName = dom.className;
+        dom.querySelector("img:last-of-type").addEventListener("click", function(event) {
+        event.stopPropagation();
+        if (confirm("确认删除?")) {
+          fetch("/upfile/delphotoalbum?className=" + cName, {
+            method: "GET",
+            headers:{
+              "Content-Type":"application/json"
+            }
+          })
+          .then(res =>{
+            if(res.status === 200){
+              console.log(res);
+              // if (dom) {
+              //   totalArr.removeByValue(eval(item.className));
+              // }
+              dom.remove();
+              if (dom == currentSelectingLeftDom) {
+                currentSelectingLeftDom = null;
+                defaultShow();
+              }
+              // console.log(currentSelectingLeftDom);
+            }
+          })
+        }
+
+      });
+    }
+
+    //相册点击 删除相册
+    function addListener(item) {
+      //点击
+      item.addEventListener("click", function() {
+        // if (currentSelectingLeftDom != item) {
+        //   // console.log("bububub");
+        //   currentPage = 0;
+        // }
+        // console.log(currentSelectingLeftDom);
+        // console.log(currentContent);
+        //为相册对应的内容div设置class
+        document.querySelector(".main > div:last-of-type").setAttribute("class", item.className);
+        let current = document.querySelector(`.main > div.${item.className}`);
+        // current.innerText = item.innerText;
+        currentContent = current;
+        document.querySelector(".photo_title").innerText = item.innerText;
+        // .insertAdjacentText("beforeEnd", item.innerText);
+        //当前点击的相册
+        currentSelectingLeftDom = item;
+        setBackground(currentSelectingLeftDom);
+        // showPhoto();
+      });
+    }
+
+//展示默认
+  function defaultShow() {
+    if (currentSelectingLeftDom) {
+      let current = document.querySelector(`.main > div.${currentSelectingLeftDom.className}`);
+      currentContent = current;
+      document.querySelector(".photo_title").innerText = currentSelectingLeftDom.innerText;
+    } else {
+      currentContent = defaultMain;
+      currentSelectingLeftDom = defaultLeft;
+      currentPage = 0;
+      document.querySelector(".photo_title").innerText = defaultLeft.innerText;
+    }
+    setBackground(currentSelectingLeftDom);
+    showPhoto();
+  }
+
+    //设置左边框的点击效果
+    let preBackItem;
+    function setBackground(item) {
+      if (preBackItem) {
+        preBackItem.style.backgroundColor = "#fff";
+      }
+      preBackItem = item;
+      item.style.backgroundColor = "#eee";
+    }
+    setBackground(currentSelectingLeftDom);
