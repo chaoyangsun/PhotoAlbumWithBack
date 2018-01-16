@@ -3,7 +3,7 @@ let count =6;
 //当前页
 let currentPage = 1;
 //选中的页码dom
-let predoma;
+let preSelectPageBtnDom;
 //当前点击的相册边栏
 let currentSelectingLeftDom;
 // 当前展示的相册内容
@@ -271,121 +271,158 @@ function clickNav(item) {
 // }
 //
 //
-// //分页
-// function goPage(total, pages) {
-//   changeBtn(pages);
-//   topage();
-// }
+// 分页
+function goPage(total, pages) {
+  //处理页码
+  changeBtn(total, pages);
+  //处理对应数据
+  // showSelectPageData(total);
+}
+
+//获取当前分页的数据
+function showSelectPageData(total) {// TODO:
+  let start = (currentPage - 1) * count;
+  let end = currentPage * count;
+  console.log(start + " -- " + end);
+  for (let i = 1; i <= total; i++) {
+    let dom = currentContent.querySelector(`div:nth-of-type(${i})`);
+    if (i > start & i <= end) {
+      dom.setAttribute("class", "img_show");
+    } else {
+      dom.setAttribute("class", "img_hidden");
+    }
+  }
+}
+
+//动态处理 页码按钮
+function changeBtn(total, p) {
+  //处理 隐藏与显示
+  let uldom = document.querySelector("footer > ul");
+  if (total === 0) {
+    uldom.setAttribute("class", "pagination_hid");
+    return;
+  } else {
+    uldom.setAttribute("class", "pagination");
+  }
 //
-// function topage() {
-//   let total = currentContent.childElementCount;
-//   let start = (currentPage - 1) * count;
-//   let end = currentPage * count;
-//   console.log(start + " -- " + end);
-//   for (let i = 1; i <= total; i++) {
-//     let dom = currentContent.querySelector(`div:nth-of-type(${i})`);
-//     if (i > start & i <= end) {
-//       dom.setAttribute("class", "img_show");
-//     } else {
-//       dom.setAttribute("class", "img_hidden");
-//     }
-//   }
-// }
-//
-// //动态处理 页码按钮
-// function changeBtn(p) {
-//   //处理 隐藏与显示
-//   let uldom = document.querySelector("footer > ul");
-//   if (p == 0 & eval(currentSelectingLeftDom.className).length == 0) {
-//     uldom.setAttribute("class", "pagination_hid");
-//     return;
-//   } else {
-//     uldom.setAttribute("class", "pagination");
-//   }
-//
-//   //处理 按钮的删减
-//   let num = document.querySelector("footer > ul").childElementCount;
-//   if (num > p + 4) {
-//     for (var i = p + 2 + 1; i <= num - 2; i) {
-//       document.querySelector(`footer > ul > li:nth-child(${i})`).remove();
-//       num = document.querySelector("footer > ul").childElementCount;
-//     }
-//   }
-//
-//   //处理 页码的增加与点击
-//   num = document.querySelector("footer > ul").childElementCount;
-//   for (let i = num - 4 + 1; i <= p; i++) {
-//     document.querySelector("footer > ul > li:nth-last-child(2)").insertAdjacentHTML("beforeBegin", strBtn);
-//     let dom = document.querySelector("footer > ul > li:nth-last-child(3) > a");
-//     dom.innerText = i;
-//     dom.addEventListener("click", function() {
-//       if (predoma) {
-//         predoma.setAttribute("class", "");
-//       }
-//       predoma = dom;
-//       dom.setAttribute("class", "active");
-//       currentPage = dom.innerText;
-//       topage();
-//     });
-//   }
-//   chooseNewPage();
-// }
-//
-// //初始化 四个固定点击按钮的点击 与显示
-// function setPage() {
-//   let uldom = document.querySelector(".pagination_hid");
-//   if (uldom) {
-//     uldom.setAttribute("class", "pagination");
-//   } else {
-//     uldom = document.querySelector(".pagination");
-//   }
-//   predoma = document.querySelector(`.pagination > li:nth-child(${currentPage + 2}) > a`);
-//   for (var i = 1; i <= 4; i++) {
-//     let dom = document.querySelector(`.pagination > li:nth-child(${i}) > a`);
-//     dom.addEventListener("click", function() {
-//       let total = uldom.childElementCount;
-//       switch (dom.innerText) {
-//         case "首页":
-//           currentPage = 1;
-//           break;
-//         case "上一页":
-//           currentPage = (--currentPage > 1) ? currentPage : 1;
-//           break;
-//         case "下一页":
-//           currentPage = (++currentPage < total - 4) ? currentPage : total - 4;
-//           break;
-//         case "尾页":
-//           currentPage = total - 4;
-//           break;
-//         default:
-//           return;
-//       }
-//       chooseNewPage();
-//     });
-//   }
-// }
-//
+  //处理 按钮的删减
+  let num = document.querySelector("footer > ul").childElementCount;
+  if (num > p + 4) {
+    for (var i = p + 2 + 1; i <= num - 2; i) {
+      document.querySelector(`footer > ul > li:nth-child(${i})`).remove();
+      num = document.querySelector("footer > ul").childElementCount;
+    }
+  }
+
+  //处理 页码的增加与点击
+  num = document.querySelector("footer > ul").childElementCount;
+  for (let i = num - 4 + 1; i <= p; i++) {
+    document.querySelector("footer > ul > li:nth-last-child(2)").insertAdjacentHTML("beforeBegin", strBtn);
+    let dom = document.querySelector("footer > ul > li:nth-last-child(3) > a");
+    dom.innerText = i;
+    dom.addEventListener("click", function(e) {
+      currentPage = e.target.innerText;
+      clickPageBtn(e.target);
+    });
+  }
+  // chooseNewPage();
+}
+
+//初始化 四个固定点击按钮的点击 与显示
+function setPage() {
+  let uldom = document.querySelector(".pagination_hid");
+  if (uldom) {
+    uldom.setAttribute("class", "pagination");
+  } else {
+    uldom = document.querySelector(".pagination");
+  }
+  preSelectPageBtnDom = document.querySelector(`.pagination > li:nth-child(${currentPage + 2}) > a`);
+  for (var i = 1; i <= 4; i++) {
+    let dom = document.querySelector(`.pagination > li:nth-child(${i}) > a`);
+    dom.addEventListener("click", function(e) {
+      let total = uldom.childElementCount;
+      switch (e.target.innerText) {
+        case "首页":
+          currentPage = 1;
+          break;
+        case "上一页":
+          currentPage = (--currentPage > 1) ? currentPage : 1;
+          break;
+        case "下一页":
+          currentPage = (++currentPage < total - 4) ? currentPage : total - 4;
+          break;
+        case "尾页":
+          currentPage = total - 4;
+          break;
+        default:
+          return;
+      }
+      clickPageBtn(e.target);
+    });
+  }
+}
+
+/**
+页码点击
+*/
+function clickPageBtn(dom) {
+    if (preSelectPageBtnDom) {
+      preSelectPageBtnDom.setAttribute("class", "");
+    }
+    preSelectPageBtnDom = dom;
+    dom.setAttribute("class", "active");
+
+    let cName = currentSelectingLeftDom.className;
+    fetch("/upfile/clickphotoalbum?className=" + cName + "&cPage=" + currentPage, {
+      method: "GET",
+      headers:{
+        "Content-Type":"application/json"
+      }
+    })
+    .then(res =>
+          res.json()
+      )
+    .then(pageobj=> {
+      if (pageobj) {
+        showPhoto(pageobj);
+      }
+    })
+}
 // //选中新的分页
 // function chooseNewPage() {
-//   if (predoma) {
-//     predoma.setAttribute("class", "not");
+//   if (preSelectPageBtnDom) {
+//     preSelectPageBtnDom.setAttribute("class", "not");
 //   }
 //   // console.log(currentPage);
 //   let newdom = document.querySelector(`.pagination > li:nth-child(${currentPage + 2}) > a`);
 //   if (newdom) {
-//     predoma = newdom;
+//     preSelectPageBtnDom = newdom;
 //     newdom.setAttribute("class", "active");
 //   }
 //   topage();
 // }
 // *************************************************************************************************
 
+
+
+//设置左边框的点击效果
+let preBackItem;
+function setBackground(item) {
+  if (preBackItem) {
+    preBackItem.style.backgroundColor = "#fff";
+  }
+  preBackItem = item;
+  item.style.backgroundColor = "#eee";
+}
+setBackground(currentSelectingLeftDom);
+
+
 //创建相册
 let createPhoto = document.querySelector(".a-create");
 let defaultItem = document.querySelector(".left > .defaultAll").outerHTML;
 // let index = 0;
 createPhoto.addEventListener("click", function() {
-  var name = window.prompt("请输入相册名字", "");
+  var name = window.prompt("请输入相册名字", "");// TODO:
   if (name) {
     let cName = "main"+ new Date().getTime();//作为新创建的相册的className
     fetch("/upfile/createphotoalbum", {
@@ -400,17 +437,9 @@ createPhoto.addEventListener("click", function() {
     .then(res=> {
       if (res) {
         res = JSON.parse(res);
-        // document.querySelector(".left").insertAdjacentHTML("beforeEnd", defaultItem);
-        // //最新创建的相册边栏
-        // let divDom = document.querySelector(".left > div:last-of-type");
-        // divDom.setAttribute("class", res.cName);
-        // // var defineStr = divDom.className;
-        // divDom.querySelector("span").innerHTML = res.name;
-        // divDom.querySelector("img:first-child").setAttribute("class", "def");
-        // divDom.querySelector("img:last-of-type").setAttribute("class", "del");
-        // addPhotoAlumClickListener(divDom);
-        // delPhotoAlumListener(divDom);
         createPhotoAlbum(res);
+        currentSelectingLeftDom = document.querySelector(".left > div:last-of-type");
+        setBackground(currentSelectingLeftDom);
         document.querySelector(".main > div:last-of-type").setAttribute("class", res.cName);
         currentContent = document.querySelector(`.main > div.${res.cName}`);
       }
@@ -418,214 +447,209 @@ createPhoto.addEventListener("click", function() {
   }
 });
 
- //默认相册的点击
- defaultLeft.addEventListener("click", function() {
-   // if (currentSelectingLeftDom != defaultLeft) {
-   //   currentPage = 0;
-   // }
-   defaultMain.setAttribute("class", "defaultAll");
-   currentContent = defaultMain;
-   currentSelectingLeftDom = defaultLeft;
-   document.querySelector(".photo_title").innerText = defaultLeft.innerText;
-   setBackground(currentSelectingLeftDom);
-   showPhoto();
- });
-
+ // //默认相册的点击
+ // defaultLeft.addEventListener("click", function() {
+ //   currentPage = 1;
+ //   defaultMain.setAttribute("class", "defaultAll");
+ //   currentContent = defaultMain;
+ //   currentSelectingLeftDom = defaultLeft;
+ //   document.querySelector(".photo_title").innerText = defaultLeft.innerText;
+ //   setBackground(currentSelectingLeftDom);
+ //   // showPhoto();
+ // });
 
 //页面刷新
-    function refresh() {
-        let xhr = new XMLHttpRequest();
-        xhr.open("GET", "/upfile/")
-        xhr.responseType = "json";
-        xhr.onreadystatechange = function() {
-          if (xhr.status == 200 && xhr.readyState == 4 && Object.keys(xhr.response).length !== 0) {
-            // console.log(Object.keys(xhr.response).length);
-            let total = xhr.response;
-            let index = currentSelectingLeftDom.className;
-            setUrl(total[index].arrPhoto);
-            Object.keys(xhr.response).forEach(obj =>{
-              if (obj != "defaultAll") {
-                createPhotoAlbum(total[obj]);
-              }
-            });
-          }
+function refresh() {
+  let xhr = new XMLHttpRequest();
+  xhr.open("GET", "/upfile/")
+  xhr.responseType = "json";
+  xhr.onreadystatechange = function() {
+    if (xhr.status == 200 && xhr.readyState == 4 && Object.keys(xhr.response).length !== 0) {
+      // console.log(Object.keys(xhr.response).length);
+      let total = xhr.response;
+      // console.log(total);
+      let className = currentSelectingLeftDom.className;
+      setUrl(total[className].arrPhoto);
+      Object.keys(xhr.response).forEach(obj =>{
+        if (obj != "defaultAll") {
+          createPhotoAlbum(total[obj]);
         }
-        xhr.send();
-      };
-     refresh();
-
-     //刷新数据时 创建页面左边栏相册目录 obj对应的相册对象
-     function createPhotoAlbum(obj) {
-       document.querySelector(".left").insertAdjacentHTML("beforeEnd", defaultItem);
-       //最新创建的相册边栏
-       let divDom = document.querySelector(".left > div:last-of-type");
-       divDom.setAttribute("class", obj.cName);
-       // var defineStr = divDom.className;
-       divDom.querySelector("span").innerHTML = obj.name;
-       divDom.querySelector("img:first-child").setAttribute("class", "def");
-       divDom.querySelector("img:last-of-type").setAttribute("class", "del");
-       addPhotoAlumClickListener(divDom);
-       delPhotoAlumListener(divDom);
-     }
-
-    let dom = document.querySelector("#file");
-    dom.addEventListener("change", function(e) {
-      let formData = new FormData();
-      let files = e.target.files;
-      for (var file of files) {
-        formData.append("mfiles", file);
-      }
-      upload(formData);
-    });
-
-    function upload(formdata) {
-      let xhr = new XMLHttpRequest();
-      xhr.open("POST", "/upfile/uparr/")
-      xhr.responseType = "json";
-      xhr.onreadystatechange = function() {
-        if (xhr.status == 200 && xhr.readyState == 4) {
-          // console.log(xhr.response);
-          xhr.response.forEach(files => {
-            setUrl(files);
-          });
-        }
-      }
-      xhr.send(formdata);
-    }
-
-    function setUrl(files) {
-      if (files) {
-        files.forEach(item => {
-          let url = "/upfile/img/" + item.filename;
-          addImage(url);
-        });
-      }
-
-    }
-
-    function addImage(url) {
-      document.querySelector(".main > header+div ").insertAdjacentHTML("beforeEnd", str);
-          let divdom = document.querySelector(".main > header+div > div:last-of-type");
-          let newImg = divdom.querySelector("img:first-child");
-          // newImg.setAttribute("class", `${++imgIndex}`);
-          newImg.src = url;
-          newImg.width = "150";
-          newImg.height = "150";
-    }
-
-
-  //相册点击
-    function addPhotoAlumClickListener(dom) {
-      dom.addEventListener("click", function() {
-        // if (currentSelectingLeftDom != dom) {
-        //   currentPage = 0;
-        // }
-        let cName = dom.className;
-        fetch("/upfile/clickphotoalbum?className=" + cName, {
-          method: "GET",
-          headers:{
-            "Content-Type":"application/json"
-          }
-        })
-        .then(res =>
-              res.json()
-          )
-        .then(res=> {
-          if (res) {
-            // document.querySelector(".left").insertAdjacentHTML("beforeEnd", defaultItem);
-            //为相册对应的内容div设置class
-            let cName = dom.className;
-            document.querySelector(".main > div:last-of-type").setAttribute("class", cName);
-            let current = document.querySelector(`.main > div.${cName}`);
-            currentContent = current;
-            document.querySelector(".photo_title").innerText = dom.innerText;
-            //当前点击的左边栏相册
-            currentSelectingLeftDom = dom;
-            setBackground(currentSelectingLeftDom);
-            // showPhoto();
-          }
-        })
       });
-    }
-
-  //相册删除
-    function delPhotoAlumListener(dom) {
-      let cName = dom.className;
-        dom.querySelector("img:last-of-type").addEventListener("click", function(event) {
-        event.stopPropagation();
-        if (confirm("确认删除?")) {
-          fetch("/upfile/delphotoalbum?className=" + cName, {
-            method: "GET",
-            headers:{
-              "Content-Type":"application/json"
-            }
-          })
-          .then(res =>{
-            if(res.status === 200){
-              console.log(res);
-              // if (dom) {
-              //   totalArr.removeByValue(eval(item.className));
-              // }
-              dom.remove();
-              if (dom == currentSelectingLeftDom) {
-                currentSelectingLeftDom = null;
-                defaultShow();
-              }
-              // console.log(currentSelectingLeftDom);
-            }
-          })
-        }
-
-      });
-    }
-
-    //相册点击 删除相册
-    function addListener(item) {
-      //点击
-      item.addEventListener("click", function() {
-        // if (currentSelectingLeftDom != item) {
-        //   // console.log("bububub");
-        //   currentPage = 0;
-        // }
-        // console.log(currentSelectingLeftDom);
-        // console.log(currentContent);
-        //为相册对应的内容div设置class
-        document.querySelector(".main > div:last-of-type").setAttribute("class", item.className);
-        let current = document.querySelector(`.main > div.${item.className}`);
-        // current.innerText = item.innerText;
-        currentContent = current;
-        document.querySelector(".photo_title").innerText = item.innerText;
-        // .insertAdjacentText("beforeEnd", item.innerText);
-        //当前点击的相册
-        currentSelectingLeftDom = item;
-        setBackground(currentSelectingLeftDom);
-        // showPhoto();
-      });
-    }
-
-//展示默认
-  function defaultShow() {
-    if (currentSelectingLeftDom) {
-      let current = document.querySelector(`.main > div.${currentSelectingLeftDom.className}`);
-      currentContent = current;
-      document.querySelector(".photo_title").innerText = currentSelectingLeftDom.innerText;
-    } else {
-      currentContent = defaultMain;
       currentSelectingLeftDom = defaultLeft;
-      currentPage = 0;
-      document.querySelector(".photo_title").innerText = defaultLeft.innerText;
+      currentContent = defaultMain.setAttribute("class", "defaultAll");
     }
-    setBackground(currentSelectingLeftDom);
-    showPhoto();
+  }
+  xhr.send();
+};
+ refresh();
+
+   //刷新数据时 创建页面左边栏相册目录 obj对应的相册对象
+   function createPhotoAlbum(obj) {
+     document.querySelector(".left").insertAdjacentHTML("beforeEnd", defaultItem);
+     //最新创建的相册边栏
+     let divDom = document.querySelector(".left > div:last-of-type");
+     divDom.setAttribute("class", obj.cName);
+     // var defineStr = divDom.className;
+     divDom.querySelector("span").innerHTML = obj.name;
+     divDom.querySelector("img:first-child").setAttribute("class", "def");
+     divDom.querySelector("img:last-of-type").setAttribute("class", "del");
+     divDom.style.backgroundColor = "#fff";
+     addPhotoAlumClickListener(divDom);
+     delPhotoAlumListener(divDom);
+   }
+
+//添加图片
+  let domInput = document.querySelector("#file");
+  domInput.addEventListener("change", function(e) {
+    let formData = new FormData();
+    formData.append("cName", currentSelectingLeftDom.className);
+    let files = e.target.files;
+    for (var file of files) {
+      formData.append("mfiles", file);
+    }
+    upload(formData);
+  });
+  function upload(formdata) {
+    let xhr = new XMLHttpRequest();
+    xhr.open("POST", "/upfile/uparr/")
+    xhr.responseType = "json";
+    xhr.onreadystatechange = function() {
+      if (xhr.status == 200 && xhr.readyState == 4) {
+        let pageobj = xhr.response;
+        //处理分页
+        goPage(pageobj.total, Math.ceil(pageobj.total / count));
+        setUrl(xhr.response);
+      }
+    }
+    xhr.send(formdata);
   }
 
-    //设置左边框的点击效果
-    let preBackItem;
-    function setBackground(item) {
-      if (preBackItem) {
-        preBackItem.style.backgroundColor = "#fff";
-      }
-      preBackItem = item;
-      item.style.backgroundColor = "#eee";
+function setUrl(files) {
+    for (var file of files) {
+      let url = "/upfile/img/" + file.filename;
+      addImage(url);
     }
-    setBackground(currentSelectingLeftDom);
+}
+
+function addImage(url) {
+  document.querySelector(".main > header+div ").insertAdjacentHTML("beforeEnd", str);
+      let divdom = document.querySelector(".main > header+div > div:last-of-type");
+      let newImg = divdom.querySelector("img:first-child");
+      // newImg.setAttribute("class", `${++imgIndex}`);
+      newImg.src = url;
+      newImg.width = "150";
+      newImg.height = "150";
+}
+
+
+//相册点击
+  function addPhotoAlumClickListener(dom) {
+    dom.addEventListener("click", function() {
+      clickLeft(dom) ;
+    });
+  }
+
+  function clickLeft(dom) {
+    currentPage = 1;
+    let cName = dom.className;
+    fetch("/upfile/clickphotoalbum?className=" + cName + "&cPage=" + currentPage, {
+      method: "GET",
+      headers:{
+        "Content-Type":"application/json"
+      }
+    })
+    .then(res =>
+          res.json()
+      )
+    .then(pageobj=> {
+      if (pageobj) {
+        console.log("pageobj = " + pageobj.total + "--" + typeof  pageobj.arr);
+        //为相册对应的内容div设置class
+        let cName = dom.className;
+        document.querySelector(".main > div:last-of-type").setAttribute("class", cName);
+        currentContent = document.querySelector(`.main > div.${cName}`);
+        document.querySelector(".photo_title").innerText = dom.innerText;
+        //当前点击的左边栏相册
+        currentSelectingLeftDom = dom;
+        setBackground(currentSelectingLeftDom);
+        showPhoto(pageobj);
+      }
+    })
+  }
+ //默认相册的点击
+ addPhotoAlumClickListener(defaultLeft);
+
+  //相册删除
+function delPhotoAlumListener(dom) {
+  let cName = dom.className;
+    dom.querySelector("img:last-of-type").addEventListener("click", function(event) {
+    event.stopPropagation();
+    if (confirm("确认删除?")) {
+      fetch("/upfile/delphotoalbum?className=" + cName, {
+        method: "GET",
+        headers:{
+          "Content-Type":"application/json"
+        }
+      })
+      .then(res =>{
+        if(res.status === 200){
+          console.log(res);
+          // if (dom) {
+          //   totalArr.removeByValue(eval(item.className));
+          // }
+          dom.remove();
+          if (dom == currentSelectingLeftDom) {
+            currentSelectingLeftDom = defaultLeft;
+            clickLeft(currentSelectingLeftDom);
+          }
+          // console.log(currentSelectingLeftDom);
+        }
+      })
+    }
+
+  });
+}
+
+    // //相册点击 删除相册
+    // function addListener(item) {
+    //   //点击
+    //   item.addEventListener("click", function() {
+    //     // if (currentSelectingLeftDom != item) {
+    //     //   // console.log("bububub");
+    //     //   currentPage = 0;
+    //     // }
+    //     // console.log(currentSelectingLeftDom);
+    //     // console.log(currentContent);
+    //     //为相册对应的内容div设置class
+    //     document.querySelector(".main > div:last-of-type").setAttribute("class", item.className);
+    //     let current = document.querySelector(`.main > div.${item.className}`);
+    //     // current.innerText = item.innerText;
+    //     currentContent = current;
+    //     document.querySelector(".photo_title").innerText = item.innerText;
+    //     // .insertAdjacentText("beforeEnd", item.innerText);
+    //     //当前点击的相册
+    //     currentSelectingLeftDom = item;
+    //     setBackground(currentSelectingLeftDom);
+    //     // showPhoto();
+    //   });
+    // }
+
+  //显示对应页码的照片照片
+  function showPhoto(pageobj) {
+    currentContent.innerHTML = "";
+    //处理分页
+    goPage(pageobj.total, Math.ceil(pageobj.total / count));
+    setUrl(pageobj.arr);
+  }
+  //选中新的分页
+  function chooseNewPage() {
+    if (preSelectPageBtnDom) {
+      preSelectPageBtnDom.setAttribute("class", "not");
+    }
+    // console.log(currentPage);
+    let newdom = document.querySelector(`.pagination > li:nth-child(${currentPage + 2}) > a`);
+    if (newdom) {
+      preSelectPageBtnDom = newdom;
+      newdom.setAttribute("class", "active");
+    }
+  }
