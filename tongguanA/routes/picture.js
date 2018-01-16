@@ -5,6 +5,16 @@ var upload = multer({
   dest:"upload"
 });
 
+//删除指定元素
+Array.prototype.removeByValue = function(val) {
+  for(var i=0; i<this.length; i++) {
+    if(this[i] == val) {
+      this.splice(i, 1);
+      break;
+    }
+  }
+}
+
 var middle = upload.array("mfiles");
 let defaultAll = [];
 //一个分页显示的照片数量
@@ -34,15 +44,15 @@ router.post("/uparr", middle, function(req, res) {
   let arr = [];
   // bigobj[cName].arrPhoto.push(req.files);
   req.files.forEach(s =>{
+    if (cName !== "defaultAll") {
+      bigobj.defaultAll.arrPhoto.push(s);
+    }
   bigobj[cName].arrPhoto.push(s);
-  arr2.push(s);
+  arr.push(s);
   })
-
-  let total = bigobj[cName].arrPhoto.length;
-  let pageobj = {};
-  // let arr = obj.arrPhoto.slice(start, end);
-  pageobj = {total, arr};
-  res.send(pageobj);
+  let currentPage = Math.ceil(bigobj[cName].arrPhoto.length/count);
+  let obj = getSelectPageDada(bigobj[cName], currentPage);
+  res.send(obj);
 });
 
 //创建相册
@@ -69,6 +79,29 @@ router.get("/delphotoalbum", function(req, res) {
   res.send();
 });
 
+//删除照片
+router.get("/delphoto", function(req, res) {
+  let cName = req.query.className;
+  let prePage = req.query.cPage;
+  let filename = req.query.filename;
+  if (cName !== "defaultAll") {
+    delPhoto(bigobj.defaultAll.arrPhoto, filename);
+  }else {
+    delPhoto2(bigobj, filename);
+  }
+  delPhoto(bigobj[cName].arrPhoto, filename);
+  let pages = Math.ceil(bigobj[cName].arrPhoto.length/count);
+  let obj = {};
+  if (prePage <= pages) {
+    obj = getSelectPageDada(bigobj[cName], prePage);
+    obj.cPage = prePage;
+  }else {
+    obj = getSelectPageDada(bigobj[cName], pages);
+    obj.cPage = pages;
+  }
+  res.send(obj);
+});
+
   // 获取当前分页的数据 { total: 0, arr: [] }
 function getSelectPageDada(obj, currentPage) {
   let total = obj.arrPhoto.length;
@@ -78,5 +111,25 @@ function getSelectPageDada(obj, currentPage) {
   let arr = obj.arrPhoto.slice(start, end);
   pageobj = {total, arr};
   return pageobj;
+}
+
+function delPhoto(arr, filename) {
+  for (file of arr) {
+    if (file.filename  === filename) {
+      fs.unlink("upload/" + filename, err => {
+        console.log(err);
+      });
+      arr.removeByValue(file);
+      break;
+    }
+  }
+}
+
+function delPhoto2(bigobj, filename) {
+  Object.keys(bigobj).forEach(obj => {
+    if (obj != "defaultAll") {
+      delPhoto(bigobj[obj].arrPhoto, filename)
+    }
+  });
 }
 module.exports = router;

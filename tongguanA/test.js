@@ -29,4 +29,5 @@ console.log(a.slice(1,2));// 从索引1可以截取到索引2之间的值
 console.log(a.slice(0,2));// 从索引0开始截取到索引2之间的值
 console.log(a.slice(-1));//从末尾-1索引截取一个值
 console.log(a.slice(0,-1));// 从索引0开始截取到末尾索引-1的值
+console.log(a.slice(1,5));
 console.log(a);
