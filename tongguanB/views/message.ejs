@@ -71,9 +71,11 @@
 
       <%if(list){%>
         <%list.forEach(item =>{%>
+            <%if(item){%>
           <ul>
             <li><%= item%></li><hr>
           </ul>
+              <%}%>
         <%})%>
       <%}%>
         <script type="text/javascript">

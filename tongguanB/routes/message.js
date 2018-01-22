@@ -1,11 +1,21 @@
 var express = require('express');
 var router = express.Router();
+var path = require("path");
 var PW = require("png-word");
 var pw = new PW();
 var fs = require("fs");
 var users = {}
 var arr = [];
-router.get("/", function (req, res) {
+let count = 0;
+// promise 版 readfile 函数
+const readFile = require("util").promisify(fs.readFile);
+
+router.get("/", async function (req, res) {
+  if (count++ === 0) {
+    let p = path.join(__dirname, "..", "leavemsg");
+    const fr = await readFile(p,"utf-8");
+    arr = fr.split(" -&- ");
+  }
   req.session.firstnum = res.locals.firstnum = Math.round(Math.random()*10);
   req.session.secondnum = res.locals.secondnum = Math.round(Math.random()*10);
 
